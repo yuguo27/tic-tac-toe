@@ -40,6 +40,8 @@ let createPlayer = function(name, score, token){
 }
 
 const gameboard = new GameBoard(array);
+const player1 = new createPlayer();
+const player2 = new createPlayer();
 //
 let GameManagement = function(round, gameboard){
     
@@ -57,6 +59,7 @@ let GameManagement = function(round, gameboard){
                 return;
             }
             else{
+
                 //gerer le round player 1 player 2 
                 //player 1 commence et place son piont sur le plateau pour choisir la case juste passer en argument pour l'insant
 
@@ -68,8 +71,6 @@ let GameManagement = function(round, gameboard){
     //démarer la game, reset le plateau gère les tours des joueurs gérer les conditions de win
 }
 
-const player1 = new createPlayer();
-const player2 = new createPlayer();
 
 /* déroulement de la partie :
     tour1 premier joueur:
