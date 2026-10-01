@@ -1,88 +1,109 @@
-//game console js
-//plateau
-let array = [];
-//plateau de jeu
-let GameBoard = function(array){
-    this.array = array;
-    let createGameBoard = function(array){
-        for (let i=0; i<3; i++){
-            for (let j=0; j<3; j++){
-                array[i][j] = ' ';
-            }
+
+const rows = 3;
+const cols= 3;
+let board = [];
+
+//stocker le tableau à l'interieur de l'objet qui gere le plateau 
+let GameBoard = function(board){
+    this.board = board;
+//let board = Array.from({length: rows}, () => new Array(cols).fill(' '));
+    //tableau 2D pour le plateau + initialisation
+    for (let i = 0; i < rows; i++) {
+        board[i] = [];
+        for (let j = 0; j < cols; j++) {
+            board[i][j] = ' ';
         }
     }
+}
 
-    let isGameBoardFill = function(array){
-        for (let i=0; i<3; i++){
-            for (let j=0; j<3; j++){
-                if (array[i][j] == ' '){
-                    return false; 
+let gameboard = new GameBoard(board);
+
+
+//stocker les joueurs dans un objets
+let Player = function(token){
+    this.token = token;
+    this.id = crypto.randomUUID();
+    //création d'une méthode de mise en place des jetons 
+    this.dropToken = function(board, row, col){
+        board[row][col] = token;
+    }
+}
+
+let player1 = new Player('X');
+let player2 = new Player('O');
+
+//objet pour gérer le déroulement du jeu
+let GameManager = function(){
+    //gestion des conditions de remplissage
+    this.isFulled = function(board){
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (board[i][j] == ' '){
+                    return false;
                 }
             }
         }
         return true;
     }
-}   
-
-
-let createUser = function(name){
-    this.id = this.id;
-    const getName = () => name;
-    return {name, id};
-}
-
-//objet du joueur
-let createPlayer = function(name, score, token){
-    const user = createUser(name);
-    const getScore = () => score;
-    const getToken = () => token;
-    return {name, user};
-}
-
-const gameboard = new GameBoard(array);
-const player1 = new createPlayer();
-const player2 = new createPlayer();
-//
-let GameManagement = function(round, gameboard){
-    
-    function isWin(){
-        //condition de win diagonal ou ligne ou colonne  = 3 
-    }
-
-    function currentGame(){
-        while (true){
-            if (gameboard.isGameBoardFill){
-                return;
-            }
-            if (isWin()){
-                //afficher le gagnant
-                return;
-            }
-            else{
-
-                //gerer le round player 1 player 2 
-                //player 1 commence et place son piont sur le plateau pour choisir la case juste passer en argument pour l'insant
-
-
+    //gestion des conditions de win
+    //verification des wins des lignes
+    this.isWinRow = function(board, cols){
+        for (let icol = 0; icol<cols; icol++){
+            if (
+                (board[0][icol] == board[1][icol] &&
+                board[1][icol] == board[2][icol]) && 
+                board[0][icol] != ' '
+            ){
+                return true;
             }
         }
+        return false;
     }
+    //verifications des wins des colonnes
+    this.isWinColumn = function(board, rows){
+        for (let irow = 0; irow<rows; irow++){
+            if (
+                board[irow][0] == board[irow][1] &&
+                board[irow][1] == board[irow][0] &&
+                board[irow][0] != ' '
+            ){
+                return true;
+            }
+        }
+        return false;
+    }
+    //verification de la win de la premiere diagonale
+    this.isWinDiagonal = function(board, rows, cols){
 
-    //démarer la game, reset le plateau gère les tours des joueurs gérer les conditions de win
+    }
+    //verification de la win de la deuxieme diagonale
+    this.isWinInverseDiagonal = function(board, rows, cols){
+
+    }
+  
+
+    //idee du déroulement de la partie pour plus tard 
+    /*this.game = function(board, player){
+        let count = 0;
+        while (!this.isFulled(board) || 
+            !this.isWinColumn(board, 3) ||
+             this.isWinRown(board, 3)
+        ){
+            player.dropToken(board, count, 2);
+            console.log(board);
+            console.log(this.isWinColumn, this.isWinRown);
+            count++;
+        }
+        
+    }*/
 }
 
+let gameManager = new GameManager();
+player1.dropToken(board, 0, 2);
+console.log(gameManager.isWinColumn(board, 3) ,gameManager.isWinRow(board, 3))
+player1.dropToken(board, 1, 2);
+player1.dropToken(board, 2, 2);
+console.log(gameManager.isWinColumn(board, 3) ,gameManager.isWinRow(board, 3))
 
-/* déroulement de la partie :
-    tour1 premier joueur:
-    premier joueur
-        place un X sur une case 
-    tour1 fini
-    tour2 deuxieme joueur:
-    deuxieme joueur:
-        place un O sur une case
-    fin du deuxieme tour
-    fin de la partie : 
-        si joueur 1 ou 2 gagne (condition 3 case aligné, en diagonnal ou en colonne)
-        ou si toutes les cases remplies 
-*/
+
 
