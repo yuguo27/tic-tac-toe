@@ -51,7 +51,7 @@ let GameManager = function(board, player){
     //verification des wins des lignes
     this.isWinRow = function(board){
         if (
-            (board[0][icol] == board[1][icol] &&
+            (board[0][0] == board[1][icol] &&
             board[1][icol] == board[2][icol]) 
         ){
             return true;
@@ -93,14 +93,14 @@ let GameManager = function(board, player){
     //déroulement de la partie 
     this.game = function(board, player){
         let count = 0;
-        while (!this.isFulled(board) || 
-            !this.isWinColumn(board, 3) ||
-             !this.isWinRown(board, 3) || 
-            !this.isWinDiagonal(board, 3) ||
+        while (!this.isFulled(board) &&
+            !this.isWinColumn(board, 3) &&
+             !this.isWinRown(board, 3) && 
+            !this.isWinDiagonal(board, 3) &&
             !this.isWinInverseDiagonal(board, 3)
         ){
             console.log(player.dropToken);
-            //player.dropToken(board, count, 2);
+            player.dropToken(board, count, 2);
             //console.log(board);
             //console.log(this.isWinColumn, this.isWinRown);
             count++;
