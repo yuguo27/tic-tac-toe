@@ -6,7 +6,6 @@ let board = [];
 //stocker le tableau à l'interieur de l'objet qui gere le plateau 
 let GameBoard = function(board){
     this.board = board;
-//let board = Array.from({length: rows}, () => new Array(cols).fill(' '));
     //tableau 2D pour le plateau + initialisation
     for (let i = 0; i < rows; i++) {
         board[i] = [];
@@ -15,7 +14,7 @@ let GameBoard = function(board){
         }
     }
     this.isEmpty = function(row, col){
-        return this.board[row][col] === ' ' ? true : false;
+        return this.board[row][col] === ' ';
     }
 }
 //créer l'objet gameboard
@@ -26,20 +25,22 @@ let Player = function(token, number){
     this.number  = number
     this.token = token;
     this.id = crypto.randomUUID();
+    
     //création d'une méthode de mise en place des jetons 
     this.dropToken = function(board, row, col){
-        if (row<3 && col<3){
+        if (row<3 && col<3 && row>=0 && col>=0){
             board[row][col] = token;
         }
     }
 }
-
+//déclaration des players
+let player1 = new Player('X', 1);
+let player2 = new Player('O', 2); 
 
 //objet pour gérer le déroulement du jeu
 let GameManager = function(gameboard){
-    let player1 = new Player('X', 1);
-    let player2 = new Player('O', 2); 
     let currentPlayer = player1;
+    this.getCurrentPlayer = () => currentPlayer;
     this.gameboard = gameboard;
     let gameOver = false;
     
@@ -112,37 +113,60 @@ let GameManager = function(gameboard){
     this.game = function(row, col){
         //gérer si la partie est terminé pour pas faire de nouveau coup
         if (gameOver) {
-            console.log("La partie est terminée !");
+            alert("La partie est terminée !");
             return;
         }
         if (!this.gameboard.isEmpty(row, col)) {
-            console.log("Cette case est déjà occupée !");
+            alert("Cette case est déjà occupée !");
             return;
         }
-        currentPlayer.dropToken(
+        this.getCurrentPlayer().dropToken(
         this.gameboard.board,
             row,
             col
         );
         
         if (this.isWin()){
-            console.log(`le joueur ${currentPlayer.number} a gagné`);
+            alert(`le joueur ${this.getCurrentPlayer().number} a gagné`);
             gameOver = true;
             return;
         }
         if (this.isFulled()){
-            console.log("égalité entre les deux jouers")
+            console.log("égalité entre les deux jouers");
+            gameOver = true;
+            return;
         }
         currentPlayer = currentPlayer === player1 ? player2 : player1;
     }
 }
 
 let gameManager = new GameManager(gameboard);
-gameManager.game(0, 0);
-gameManager.game(1, 0);
-gameManager.game(2, 2);
-gameManager.game(2, 1);
-gameManager.game(1, 1);
+
+//ajout de la logique DOM 
+let Display = function(gameManager){
+    this.gameManager = gameManager
+    const container = document.querySelector(".container");
+    //let button = document.createElement("button");
+    for (let i=0; i<9; i++){
+        const button = document.createElement("button");
+        button.textContent = ' ';
+        button.addEventListener("click", () => {
+            //obtenir la ligne grace à la division entiere
+            const row = Math.floor(i/3);
+            //obtenir la colonne grace au reste
+            const col = i%3;
+            gameManager.game(row, col);
+            button.textContent = gameManager.gameboard.board[row][col];
+            
+        })
+        container.appendChild(button);
+
+        
+    }
+
+}
+
+let display = new Display(gameManager);
 
 
 
