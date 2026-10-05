@@ -14,111 +14,136 @@ let GameBoard = function(board){
             board[i][j] = ' ';
         }
     }
+    this.isEmpty = function(row, col){
+        return this.board[row][col] === ' ' ? true : false;
+    }
 }
-
+//créer l'objet gameboard
 let gameboard = new GameBoard(board);
 
-
 //stocker les joueurs dans un objets
-let Player = function(token){
+let Player = function(token, number){
+    this.number  = number
     this.token = token;
     this.id = crypto.randomUUID();
     //création d'une méthode de mise en place des jetons 
     this.dropToken = function(board, row, col){
-        board[row][col] = token;
+        if (row<3 && col<3){
+            board[row][col] = token;
+        }
     }
 }
 
-let player1 = new Player('X');
-let player2 = new Player('O');
 
 //objet pour gérer le déroulement du jeu
-let GameManager = function(board, player){
-    this.player = player
-    this.board = board
+let GameManager = function(gameboard){
+    let player1 = new Player('X', 1);
+    let player2 = new Player('O', 2); 
+    let currentPlayer = player1;
+    this.gameboard = gameboard;
+    let gameOver = false;
+    
     //gestion des conditions de remplissage
-    this.isFulled = function(board){
+    this.isFulled = function(){
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-                if (board[i][j] == ' '){
+                if (this.gameboard.board[i][j] == ' '){
                     return false;
                 }
             }
         }
         return true;
     }
-    //gestion des conditions de win
-    //verification des wins des lignes
-    this.isWinRow = function(board){
-        if (
-            (board[0][0] == board[1][icol] &&
-            board[1][icol] == board[2][icol]) 
-        ){
-            return true;
-        }
-        return false;
-    }
-    //verifications des wins des colonnes
-    this.isWinColumn = function(board){
-        if (
-            board[irow][0] == board[irow][1] &&
-            board[irow][1] == board[irow][0] 
-        ){
-            return true;
-        }
-        return false;
-    }
-    //verification de la win de la premiere diagonale
-    this.isWinDiagonal = function(board, number){
-        if (
-            board[0][0] == board[1][1] &&
-            board[1][1] == board[2][2] 
-        ){
-            return true;
-        }
-        return false;
-    }
-    //verification de la win de la deuxieme diagonale
-    this.isWinInverseDiagonal = function(board, rows, cols){
-        if (
-            board[0][2] == board[1][1] &&
-            board[1][1] == board[2][0] 
-        ){
-            return true;
-        }
-        return false;
-    }
-  
 
-    //déroulement de la partie 
-    this.game = function(board, player){
+    //gestion des conditions de win
+    this.isWin = function(){
         let count = 0;
-        while (!this.isFulled(board) &&
-            !this.isWinColumn(board, 3) &&
-             !this.isWinRown(board, 3) && 
-            !this.isWinDiagonal(board, 3) &&
-            !this.isWinInverseDiagonal(board, 3)
-        ){
-            console.log(player.dropToken);
-            player.dropToken(board, count, 2);
-            //console.log(board);
-            //console.log(this.isWinColumn, this.isWinRown);
-            count++;
+        //verification de la row
+        for(let irow=0; irow<3; irow++){
+            count = 0;
+            for(let icol=0; icol<3; icol++){
+                if (icol<2 && 
+                    this.gameboard.board[irow][icol] == this.gameboard.board[irow][icol+1]&&
+                    !this.gameboard.isEmpty(irow, icol)
+                ){
+                    count++;
+                    if (count ==2){
+                        return true;
+                    }
+                }
+            }
         }
+        //verification de la colonne
+        for(let icol=0; icol<3; icol++){
+            count = 0;
+            for(let irow=0; irow<3; irow++){
+                if (irow<2 && 
+                    this.gameboard.board[irow][icol] == this.gameboard.board[irow+1][icol] &&
+                    !this.gameboard.isEmpty(irow, icol)
+                ){
+                    count++;
+                    if (count ==2){
+                        return true;
+                    }
+                }
+            }
+        }
+        // diagonale descendante
+        if (
+            this.gameboard.board[0][0] !== ' ' &&
+            this.gameboard.board[0][0] === this.gameboard.board[1][1] &&
+            this.gameboard.board[1][1] === this.gameboard.board[2][2]
+        ) {
+            return true;
+        }
+
+        // diagonale montante
+        if (
+            this.gameboard.board[0][2] !== ' ' &&
+            this.gameboard.board[0][2] === this.gameboard.board[1][1] &&
+            this.gameboard.board[1][1] === this.gameboard.board[2][0]
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+    //déroulement de la partie 
+    this.game = function(row, col){
+        //gérer si la partie est terminé pour pas faire de nouveau coup
+        if (gameOver) {
+            console.log("La partie est terminée !");
+            return;
+        }
+        if (!this.gameboard.isEmpty(row, col)) {
+            console.log("Cette case est déjà occupée !");
+            return;
+        }
+        currentPlayer.dropToken(
+        this.gameboard.board,
+            row,
+            col
+        );
         
+        if (this.isWin()){
+            console.log(`le joueur ${currentPlayer.number} a gagné`);
+            gameOver = true;
+            return;
+        }
+        if (this.isFulled()){
+            console.log("égalité entre les deux jouers")
+        }
+        currentPlayer = currentPlayer === player1 ? player2 : player1;
     }
 }
 
+let gameManager = new GameManager(gameboard);
+gameManager.game(0, 0);
+gameManager.game(1, 0);
+gameManager.game(2, 2);
+gameManager.game(2, 1);
+gameManager.game(1, 1);
 
 
-let gameManager = new GameManager(board, player1);
-gameManager.game(board, player1)
-/*
-player1.dropToken(board, 0, 0);
-console.log(gameManager.isWinColumn(board, 3) ,gameManager.isWinRow(board, 3))
-player1.dropToken(board, 1, 1);
-player1.dropToken(board, 2, 2);
-console.log(gameManager.isWinColumn(board, 3) ,gameManager.isWinRow(board, 3), gameManager.isWinDiagonal(board, 3))
-*/
 
 
